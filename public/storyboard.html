@@ -1,0 +1,68 @@
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+	<h1>Some sort of cool API app coming...</h1>
+
+	<form id="add-tag">
+		<input type="text" id="picture-tag" placeholder="Enter subject">
+		<button type="submit" >Go!</button>
+	</form>
+
+	<section id="picture-container">
+		<ul id="word_list">
+
+
+		</ul>
+		
+	</section>
+
+	<script src="jquery-2.1.1.min.js"></script>
+
+	<script>
+	$(document).ready(function(){
+		$('#add-tag').on('submit',function(event){
+			event.preventDefault();
+
+			var movieUrl = "http://api.themoviedb.org/3/movie/top_rated?api_key=f95ced79f6e5efe487680bf14ce78d20";
+
+			$.get(movieUrl, function(movieList) {
+				var movieName = movieList.results[Math.round((Math.random())*19)].original_title;
+				var tags = movieName.toLowerCase().split(" ");
+				var smallWords = ["and","the","how","The"]
+				var filteredTags = []
+				for (var i = 0, l = tags.length, w; i < l; i++) {
+				    w = tags[i]
+					    if (smallWords.indexOf(w)=== -1 && w.length > 2)
+					        filteredTags.push(w)
+				}
+				
+				
+				filteredTags.forEach(function(tag){
+					var url = "https://api.instagram.com/v1/tags/" + tag +"/media/recent?client_id=9cf859e14cf34ce2849321430d23d7be";
+
+
+					$.get(url, function(pictures) {
+
+						$('<div><h1> new pick</h1><img src="' + pictures.data[0].images.low_resolution.url + '"><img src="' + pictures.data[1].images.low_resolution.url + '"><img src="' + pictures.data[2].images.low_resolution.url + '"></div>').appendTo('#picture-container');
+						console.log(pictures);	
+						console.log(pictures.data[0].created_time)
+					}, 'jsonp')
+
+			}, 'jsonp')
+
+				console.log(filteredTags)
+
+				})
+
+
+		})
+
+
+	})
+
+	</script>
+
+</body>
+</html>
