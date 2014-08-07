@@ -10,18 +10,28 @@
 		<button type="submit" >Go!</button>
 	</form>
 
-	<section id="picture-container">
-		<ul id="word_list">
-
-
-		</ul>
-		
+	<section id="picture_container">
 	</section>
 
+	<template id="picture_template">
+		
+		<div>
+			<h1> new pick</h1>
+			{{#pictures}}
+			<h1>{{tag}}</h1>				
+			<img src="{{ imageUrl }}" alt= "{{ tag }}">
+			{{/pictures}}
+		</div>
+
+	</template>
+
 	<script src="jquery-2.1.1.min.js"></script>
+	<script src="mustache.js"></script>
 
 	<script>
+
 	$(document).ready(function(){
+
 		$('#add-tag').on('submit',function(event){
 			event.preventDefault();
 
@@ -30,7 +40,7 @@
 			$.get(movieUrl, function(movieList) {
 				var movieName = movieList.results[Math.round((Math.random())*19)].original_title;
 				var tags = movieName.toLowerCase().split(" ");
-				var smallWords = ["and","the","how","The"]
+				var smallWords = ["and","the","how","from"]
 				var filteredTags = []
 				for (var i = 0, l = tags.length, w; i < l; i++) {
 				    w = tags[i]
@@ -42,12 +52,13 @@
 				filteredTags.forEach(function(tag){
 					var url = "https://api.instagram.com/v1/tags/" + tag +"/media/recent?client_id=9cf859e14cf34ce2849321430d23d7be";
 
+					$.get(url, function(picturesData) {
+						var pictures = picturesData.data.map(function(pic){
+							return { imageUrl: pic.images.low_resolution.url, tag: tag }
+						})
 
-					$.get(url, function(pictures) {
-
-						$('<div><h1> new pick</h1><img src="' + pictures.data[0].images.low_resolution.url + '"><img src="' + pictures.data[1].images.low_resolution.url + '"><img src="' + pictures.data[2].images.low_resolution.url + '"></div>').appendTo('#picture-container');
-						console.log(pictures);	
-						console.log(pictures.data[0].created_time)
+						var newWordPictures = Mustache.render($('#picture_template').html(), {pictures: pictures.slice(0, 3)});
+						$(newWordPictures).appendTo('#picture_container');
 					}, 'jsonp')
 
 			}, 'jsonp')
@@ -55,7 +66,6 @@
 				console.log(filteredTags)
 
 				})
-
 
 		})
 
