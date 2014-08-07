@@ -30,6 +30,28 @@
 
 	<script>
 
+	function fetchPictures(tags) {
+
+		tag = tags[0]
+		var url = "https://api.instagram.com/v1/tags/" + tag +"/media/recent?client_id=9cf859e14cf34ce2849321430d23d7be";
+
+		$.get(url, function(picturesData) {
+			var pictures = picturesData.data.map(function(pic){
+				return { imageUrl: pic.images.low_resolution.url, tag: tag }
+			})
+
+			var newWordPictures = Mustache.render($('#picture_template').html(), {pictures: pictures.slice(0, 3)});
+			$(newWordPictures).appendTo('#picture_container');
+
+			if (tags.length > 1) {
+			tags.splice(0,1)
+			fetchPictures(tags)
+			}
+
+		}, 'jsonp')
+
+	}
+
 	$(document).ready(function(){
 
 		$('#add-tag').on('submit',function(event){
@@ -48,24 +70,10 @@
 					        filteredTags.push(w)
 				}
 				
-				
-				filteredTags.forEach(function(tag){
-					var url = "https://api.instagram.com/v1/tags/" + tag +"/media/recent?client_id=9cf859e14cf34ce2849321430d23d7be";
-
-					$.get(url, function(picturesData) {
-						var pictures = picturesData.data.map(function(pic){
-							return { imageUrl: pic.images.low_resolution.url, tag: tag }
-						})
-
-						var newWordPictures = Mustache.render($('#picture_template').html(), {pictures: pictures.slice(0, 3)});
-						$(newWordPictures).appendTo('#picture_container');
-					}, 'jsonp')
-
-			}, 'jsonp')
-
+				fetchPictures(filteredTags)
 				console.log(filteredTags)
 
-				})
+			}, 'jsonp')
 
 		})
 
