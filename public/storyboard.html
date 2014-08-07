@@ -18,34 +18,36 @@
 		<div>
 			<h1> new pick</h1>
 			{{#pictures}}
-			<h1>{{tag}}</h1>				
-			<img src="{{ imageUrl }}" alt= "{{ tag }}">
+				<h1>{{tags}}</h1>				
+				<img src="{{ imageUrl }}" title= "{{ tags }}">
 			{{/pictures}}
 		</div>
 
-	</template>
+	</template>	
 
 	<script src="jquery-2.1.1.min.js"></script>
 	<script src="mustache.js"></script>
 
 	<script>
 
-	function fetchPictures(tags) {
+	function fetchPictures(wordList) {
 
-		tag = tags[0]
-		var url = "https://api.instagram.com/v1/tags/" + tag +"/media/recent?client_id=9cf859e14cf34ce2849321430d23d7be";
+		word = wordList[0]
+		var url = "https://api.instagram.com/v1/tags/" + word +"/media/recent?client_id=9cf859e14cf34ce2849321430d23d7be";
 
 		$.get(url, function(picturesData) {
+			console.log(picturesData)
 			var pictures = picturesData.data.map(function(pic){
-				return { imageUrl: pic.images.low_resolution.url, tag: tag }
+				return { imageUrl: pic.images.low_resolution.url, tags: pic.tags, word: word }
 			})
-
+			pictures.sort(function(a,b) { return a.tags.length - b.tags.length } );
+			
 			var newWordPictures = Mustache.render($('#picture_template').html(), {pictures: pictures.slice(0, 3)});
 			$(newWordPictures).appendTo('#picture_container');
 
-			if (tags.length > 1) {
-			tags.splice(0,1)
-			fetchPictures(tags)
+			if (wordList.length > 1) {
+			wordList.splice(0,1)
+			fetchPictures(wordList)
 			}
 
 		}, 'jsonp')
@@ -56,22 +58,23 @@
 
 		$('#add-tag').on('submit',function(event){
 			event.preventDefault();
+			var test = [$('#picture-tag').val()]
 
 			var movieUrl = "http://api.themoviedb.org/3/movie/top_rated?api_key=f95ced79f6e5efe487680bf14ce78d20";
 
 			$.get(movieUrl, function(movieList) {
 				var movieName = movieList.results[Math.round((Math.random())*19)].original_title;
 				var tags = movieName.toLowerCase().split(" ");
-				var smallWords = ["and","the","how","from"]
-				var filteredTags = []
+				var smallWords = ["and","the","how","from","our"]
+				var filteredWords = []
 				for (var i = 0, l = tags.length, w; i < l; i++) {
 				    w = tags[i]
 					    if (smallWords.indexOf(w)=== -1 && w.length > 2)
-					        filteredTags.push(w)
+					        filteredWords.push(w)
 				}
 				
-				fetchPictures(filteredTags)
-				console.log(filteredTags)
+				console.log(filteredWords)
+				fetchPictures(test)
 
 			}, 'jsonp')
 
