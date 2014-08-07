@@ -1,29 +1,43 @@
 <html>
 <head>
 	<title></title>
+	<link href="style.css" rel="stylesheet">
 </head>
 <body>
 	<h1>Some sort of cool API app coming...</h1>
 
-	<form id="add-tag">
-		<input type="text" id="picture-tag" placeholder="Enter subject">
+	<form id="user-input">
+		<input type="text" id="user-phrase" placeholder="Enter phrase">
 		<button type="submit" >Go!</button>
 	</form>
+
+	<button id="movie_button">Random Movie</button>
+	<button id="reveal_answer"> Reveal Answer</button>
 
 	<section id="picture_container">
 	</section>
 
+	<secion id="answer_container">
+	</section>
+
+	</body>
+</html>
+
 	<template id="picture_template">
 		
-		<div>
-			<h1> new pick</h1>
-			{{#pictures}}
-				<h1>{{tags}}</h1>				
+		<div class = "word_container">
+			{{#pictures}}				
 				<img src="{{ imageUrl }}" title= "{{ tags }}">
 			{{/pictures}}
 		</div>
 
-	</template>	
+	</template>
+
+	<template id="answer_template">
+		<div>
+			<h1>The answer is: {{ movie }}</h1>
+		</div>
+	</template>
 
 	<script src="jquery-2.1.1.min.js"></script>
 	<script src="mustache.js"></script>
@@ -54,36 +68,53 @@
 
 	}
 
+	function fetchPicturesDescribing (phrase) {
+		var unfilteredWords = phrase.toLowerCase().split(" ");
+		var smallWords = ["and","the","how","from","our"]
+		var filteredWords = []
+		for (var i = 0, l = unfilteredWords.length, w; i < l; i++) {
+			w = unfilteredWords[i]
+			if (smallWords.indexOf(w)=== -1 && w.length > 2)
+		        filteredWords.push(w)
+		}
+		console.log(filteredWords)
+		return fetchPictures(filteredWords)
+	}
+
+
 	$(document).ready(function(){
 
-		$('#add-tag').on('submit',function(event){
+		$('#movie_button').on('click',function(event){
 			event.preventDefault();
-			var test = [$('#picture-tag').val()]
+			// line to delete setion and results
+			$("#picture_container").empty();
 
+			var test = [$('#picture-tag').val()]
 			var movieUrl = "http://api.themoviedb.org/3/movie/top_rated?api_key=f95ced79f6e5efe487680bf14ce78d20";
 
 			$.get(movieUrl, function(movieList) {
 				var movieName = movieList.results[Math.round((Math.random())*19)].original_title;
-				var tags = movieName.toLowerCase().split(" ");
-				var smallWords = ["and","the","how","from","our"]
-				var filteredWords = []
-				for (var i = 0, l = tags.length, w; i < l; i++) {
-				    w = tags[i]
-					    if (smallWords.indexOf(w)=== -1 && w.length > 2)
-					        filteredWords.push(w)
-				}
-				
-				console.log(filteredWords)
-				fetchPictures(test)
+				fetchPicturesDescribing(movieName)
+
+
+				$("#reveal_answer").on('click', function(event){
+					console.log(movieName)
+					event.preventDefault();
+					var answer = Mustache.render($("#answer_template").html(), {movie: movieName});
+					$(answer).appendTo("#answer_container");
+				})
 
 			}, 'jsonp')
 
 		})
 
+		$('#user-input').on('submit',function(event){
+			event.preventDefault();
+			var inputPhrase = $('#user-phrase').val()
+			fetchPicturesDescribing(inputPhrase)
+		})
 
 	})
 
 	</script>
 
-</body>
-</html>
