@@ -17,7 +17,7 @@
 	<section id="picture_container">
 	</section>
 
-	<secion id="answer_container">
+	<section id="answer_container">
 	</section>
 
 	</body>
@@ -26,9 +26,10 @@
 	<template id="picture_template">
 		
 		<div class = "word_container">
-			{{#pictures}}				
-				<img src="{{ imageUrl }}" title= "{{ tags }}">
-			{{/pictures}}
+			<!-- {{#pictures}}				 -->
+				<img src="{{ imageUrl }}">
+				<!-- For figuring out tags: <img src="{{ imageUrl }}" title= "{{ tags }}"> -->
+			<!-- {{/pictures}} -->
 		</div>
 
 	</template>
@@ -84,10 +85,16 @@
 
 	$(document).ready(function(){
 
+		$("#reveal_answer").on('click', function(event){
+			$('#answer_container div').show();
+			event.preventDefault();
+
+		})
+
 		$('#movie_button').on('click',function(event){
 			event.preventDefault();
-			// line to delete setion and results
 			$("#picture_container").empty();
+			$("#answer_container").empty();
 
 			var test = [$('#picture-tag').val()]
 			var movieUrl = "http://api.themoviedb.org/3/movie/top_rated?api_key=f95ced79f6e5efe487680bf14ce78d20";
@@ -96,13 +103,8 @@
 				var movieName = movieList.results[Math.round((Math.random())*19)].original_title;
 				fetchPicturesDescribing(movieName)
 
-
-				$("#reveal_answer").on('click', function(event){
-					console.log(movieName)
-					event.preventDefault();
-					var answer = Mustache.render($("#answer_template").html(), {movie: movieName});
-					$(answer).appendTo("#answer_container");
-				})
+				var answer = Mustache.render($("#answer_template").html(), {movie: movieName});
+				$(answer).appendTo("#answer_container").hide();
 
 			}, 'jsonp')
 
