@@ -1,4 +1,4 @@
-###Makers Academy Week 7: Film-Title-to-Instagram-Images
+###[Makers Academy] Week 7: Film-Title-to-Instagram-Images
 --------------
 
 ####Specification:
@@ -30,3 +30,4 @@ $ git clone https://github.com/EdwardAndress/makers_academy_week7.git
 $ cd makers_academy_week7
 $ open storyboard.html
 ```
+[Makers Academy]: http://makersacademy.com
